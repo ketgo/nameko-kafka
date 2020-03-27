@@ -1,0 +1,10 @@
+[report]
+exclude_lines =
+    pragma: no cover
+    raise NotImplementedError
+omit =
+    setup.py
+    ./venv/*
+    ./nameko-mongoengine/version.py
+    ./benchmarks/*
+    ./tests/*
