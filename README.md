@@ -1,4 +1,4 @@
-# nameko-kafka
+# Nameko-Kafka
 
 Kafka extension for [Nameko](https://www.nameko.io/) microservice framework. 
 
