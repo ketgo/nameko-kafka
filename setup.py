@@ -28,7 +28,7 @@ if __name__ == '__main__':
         install_requires=[
             'nameko',
             'kafka-python',
-            'wrapt==1.11'
+            'wrapt==1.11'  # Fixed version: needed by kafka-python
         ],
         extras_require={
             'dev': [
@@ -38,7 +38,7 @@ if __name__ == '__main__':
                 'pylint',
             ]
         },
-        packages=find_packages(exclude=('tests', 'benchmarks')),
+        packages=find_packages(exclude=('tests',)),
         classifiers=[
             'Intended Audience :: Developers',
             'License :: OSI Approved :: Apache Software License',
