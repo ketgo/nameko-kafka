@@ -2,10 +2,14 @@
     Nameko kafka entrypoint
 """
 
+import json
+import os
 from functools import partial
 
 from kafka import KafkaConsumer as Consumer
 from nameko.extensions import Entrypoint
+
+from .constants import KAFKA_CONSUMER_CONFIG_KEY
 
 
 class KafkaConsumer(Entrypoint):
@@ -19,15 +23,34 @@ class KafkaConsumer(Entrypoint):
 
     def __init__(self, *topics, **kwargs):
         self._topics = topics
-        # Gets kafka config options from keyword arguments
-        self._config = {
-            key: kwargs.pop(key, value) for key, value in Consumer.DEFAULT_CONFIG.items()
-        }
+        self._config = {}
+        # Extract kafka config options from keyword arguments
+        for option in Consumer.DEFAULT_CONFIG:
+            value = kwargs.pop(option, None)
+            if value:
+                self._config[option] = value
         self._consumer = None
-        super(KafkaConsumer, self).__init__(**kwargs)
+        try:
+            super(KafkaConsumer, self).__init__(**kwargs)
+        except TypeError:
+            raise TypeError("Invalid arguments for Kafka consumer: '{}'".format(kwargs))
+
+    def _parse_config(self):
+        cfg = self.container.config.get(KAFKA_CONSUMER_CONFIG_KEY)
+        # Check environment variables if config not found in file
+        if not cfg:
+            _value = os.environ.get(KAFKA_CONSUMER_CONFIG_KEY, "{}")
+            cfg = json.loads(_value)
+        # Override options from file or env variable with
+        # those from keyword arguments.
+        for option in self._config:
+            cfg[option] = self._config[option]
+
+        return cfg
 
     def setup(self):
-        self._consumer = Consumer(*self._topics, **self._config)
+        config = self._parse_config()
+        self._consumer = Consumer(*self._topics, **config)
 
     def start(self):
         self.container.spawn_managed_thread(

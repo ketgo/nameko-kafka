@@ -2,10 +2,13 @@
     Tests for kafka dependency
 """
 
+import json
+
 import pytest
 from nameko.testing.services import dummy, entrypoint_hook
 
 from nameko_kafka import KafkaProducer
+from nameko_kafka.constants import KAFKA_PRODUCER_CONFIG_KEY
 
 
 @pytest.fixture
@@ -37,3 +40,74 @@ def test_dependency(container, consumer):
             for msg in fetch[topic]:
                 assert msg.value == b"foo"
                 assert msg.key == b"test"
+
+
+@pytest.mark.parametrize("file_config,env_config,kwargs,kafka_config", [
+    (
+            {},
+            {
+                KAFKA_PRODUCER_CONFIG_KEY: json.dumps({
+                    "bootstrap_servers": "kafka_env",
+                    "retries": 3
+                })
+            },
+            {
+                "bootstrap_servers": "kafka_args",
+            },
+            {
+                "bootstrap_servers": "kafka_args",
+                "retries": 3
+            }
+    ),
+    (
+            {
+                KAFKA_PRODUCER_CONFIG_KEY: {
+                    "bootstrap_servers": "kafka_file",
+                    "retries": 5
+                }
+            },
+            {
+                KAFKA_PRODUCER_CONFIG_KEY: json.dumps({
+                    "bootstrap_servers": "kafka_env",
+                    "retries": 3
+                })
+            },
+            {},
+            {
+                "bootstrap_servers": "kafka_file",
+                "retries": 5
+            }
+    ),
+    (
+            {
+                KAFKA_PRODUCER_CONFIG_KEY: {
+                    "bootstrap_servers": "kafka_file",
+                    "retries": 5
+                }
+            },
+            {
+                KAFKA_PRODUCER_CONFIG_KEY: json.dumps({
+                    "bootstrap_servers": "kafka_env",
+                    "retries": 3
+                })
+            },
+            {
+                "retries": 4
+            },
+            {
+                "bootstrap_servers": "kafka_file",
+                "retries": 4
+            }
+    ),
+
+])
+def test_config(mocker, mock_container, file_config, env_config, kwargs, kafka_config):
+    mocker.patch('os.environ', env_config)
+    dep = KafkaProducer(**kwargs).bind(mock_container, 'engine')
+    dep.container.config = file_config
+    assert dep._parse_config() == kafka_config
+
+
+def test_dependency_config_error():
+    with pytest.raises(TypeError):
+        KafkaProducer(**{"test": 0})

@@ -75,9 +75,63 @@ by environment variables.
 
 ### Config File
 
+```yaml
+# Config for entrypoint
+KAFKA_CONSUMER:
+  bootstrap_servers: 'localhost:1234'
+  retry_backoff_ms: 100
+  ...
+
+# Config for dependency
+KAFKA_PRODUCER:
+  bootstrap_servers: 'localhost:1234'
+  retries: 3
+  ...
+```
+
 ### Environment Variables
 
+```.env
+# Config for entrypoint
+KAFKA_CONSUMER='{"bootstrap_servers": "localhost:1234", "retry_backoff_ms": 100}'
+
+# Config for dependency
+KAFKA_PRODUCER='{"bootstrap_servers": "localhost:1234", "retries": 3}'
+```
+
+## Milestones
+
+[x] Kafka Entrypoint
+[x] Kafka Dependency
+[ ] Advanced feature select commit strategies: _ALMOST_ONCE_DELIVERY_, _AT_LEAST_ONCE_DELIVERY_, _EXACTLY_ONCE_DELIVERY_
+[ ] Commit storage for _EXACT_ONCE_DELIVERY_ strategy
+
 ## Developers
+
+For development a kafka broker is required. You can spawn one using the [docker-compose.yml](https://github.com/ketgo/nameko-kafka/blob/master/tests/conftest.py) 
+file in the `tests` folder:
+```bash
+$ cd tests
+$ docker-compose up -d 
+```
+
+To install all package dependencies:
+```bash
+$ pip install -r .[dev]
+or
+$ make deps
+```
+
+Other useful commands:
+```bash
+$ pytest --cov=nameko_kafka tests/			# to get coverage report
+or
+$ make coverage
+
+$ pylint nameko_kafka       # to check code quality with PyLint
+or
+$ make lint
+```
 
 ## Contributions
 

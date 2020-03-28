@@ -5,6 +5,7 @@
 import pytest
 from kafka import KafkaConsumer as Consumer
 from kafka import KafkaProducer as Producer
+from nameko.containers import ServiceContainer
 
 
 @pytest.fixture
@@ -60,3 +61,8 @@ def wait_for_result(entrypoint_tracker):
         return True
 
     return cb
+
+
+@pytest.fixture
+def mock_container(mocker):
+    return mocker.Mock(spec=ServiceContainer, config={}, service_name="test")

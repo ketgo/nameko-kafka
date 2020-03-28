@@ -1,0 +1,27 @@
+dist: xenial   # required for Python >= 3.7
+
+sudo: false
+
+language: python
+
+services:
+  - docker
+
+cache: pip
+
+python:
+  - "3.6"
+  - "3.7"
+
+install:
+  - make deps
+
+before_script:
+  - docker-compose -f tests/docker-compose.yml up -d
+  - sleep 15
+
+script:
+  - make coverage
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
