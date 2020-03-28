@@ -101,10 +101,13 @@ KAFKA_PRODUCER='{"bootstrap_servers": "localhost:1234", "retries": 3}'
 
 ## Milestones
 
-[x] Kafka Entrypoint
-[x] Kafka Dependency
-[ ] Advanced feature select commit strategies: _ALMOST_ONCE_DELIVERY_, _AT_LEAST_ONCE_DELIVERY_, _EXACTLY_ONCE_DELIVERY_
-[ ] Commit storage for _EXACT_ONCE_DELIVERY_ strategy
+- [x] Kafka Entrypoint
+- [x] Kafka Dependency
+- [ ] Advanced feature select commit strategies: 
+    - _ALMOST_ONCE_DELIVERY_
+    - _AT_LEAST_ONCE_DELIVERY_ 
+    - _EXACTLY_ONCE_DELIVERY_
+- [ ] Commit storage for _EXACT_ONCE_DELIVERY_ strategy
 
 ## Developers
 
