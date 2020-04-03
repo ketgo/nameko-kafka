@@ -16,5 +16,5 @@ class DeliveryStrategy(Enum):
 
 class CommitsManager:
     """
-        Commits manager handling configured message delivery strategy.
+        Commits commits handling configured message delivery strategy.
     """
