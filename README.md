@@ -1,13 +1,18 @@
 # Nameko-Kafka
 
+[![Build Status](https://travis-ci.com/ketgo/nameko-kafka.svg?branch=master)](https://travis-ci.com/ketgo/nameko-kafka)
+[![codecov.io](https://codecov.io/gh/ketgo/nameko-kafka/coverage.svg?branch=master)](https://codecov.io/gh/ketgo/nameko-kafka/coverage.svg?branch=master)
+[![MIT licensed](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+---
+
 Kafka extension for [Nameko](https://www.nameko.io/) microservice framework. 
 
 ## Introduction
 
-This is a Nameko microservice framework [extension](https://nameko.readthedocs.io/en/stable/key_concepts.html) to support Kafka entrypoint and dependency. The motivation behind 
-creating this project is this issue [569](https://github.com/nameko/nameko/issues/569). Thus _nameko-kafka_ tries to provide 
-a simple implementation extension based on the approach explained by [calumpeterwebb](https://medium.com/@calumpeterwebb/nameko-tutorial-creating-a-kafka-consuming-microservice-c4a7adb804d0).
-On topo of that a dependency provider is also included for publishing Kafka messages from within Nameko services.
+This is a Nameko microservice framework [extension](https://nameko.readthedocs.io/en/stable/key_concepts.html) to support 
+Kafka entrypoint and dependency. The motivation behind the project is issue [569](https://github.com/nameko/nameko/issues/569). 
+_Nameko-kafka_ provide a simple implementation of the entrypoint based on the approach by [calumpeterwebb](https://medium.com/@calumpeterwebb/nameko-tutorial-creating-a-kafka-consuming-microservice-c4a7adb804d0).
+It also includes a dependency provider for publishing Kafka messages from within a Nameko service.
 
 ## Installation
 
@@ -18,12 +23,13 @@ $ pip install nameko-kafka
 
 ## Usage
 
-The extension can be used for both, service dependency and entrypoint. Example usage for both the cases are shown below:
+The extension can be used for both, service dependency and entrypoint. Example usage for both the cases are shown in the
+following sections.
 
 ## Dependency
 
 This is basically a [python-kafka](https://github.com/dpkp/kafka-python) producer in the form of Nameko dependency. 
-Nameko uses dependency injection to initiate the producer. You just need to declare it in your service class:
+Nameko uses dependency injection to instantiate the producer. You just need to declare it in your service class as shown:
 
 ```python
 from nameko.rpc import rpc
@@ -48,7 +54,7 @@ Here `KafkaProducer` accepts all options valid for `python-kafka`'s [KafkaProduc
 
 ### Entrypoint
 
-You can use the `nameko_kafka.consume` decorator in your services which process Kafka messages:
+You can use the `nameko_kafka.consume` decorator in your services to process Kafka messages:
 
 ```python
 from nameko_kafka import consume
@@ -70,7 +76,7 @@ The `consume` decorator accepts all the options valid for `python-kafka`'s [Kafk
 
 ## Configurations
 
-The dependency configurations can be set in nameko [config.yaml]((https://docs.nameko.io/en/stable/cli.html)) file, or 
+The extension configurations can be set in a nameko [config.yaml]((https://docs.nameko.io/en/stable/cli.html)) file, or 
 by environment variables.
 
 ### Config File
