@@ -1,5 +1,10 @@
 # Nameko-Kafka
 
+[![Build Status](https://travis-ci.com/ketgo/nameko-kafka.svg?branch=master)](https://travis-ci.com/ketgo/nameko-kafka)
+[![codecov.io](https://codecov.io/gh/ketgo/nameko-kafka/coverage.svg?branch=master)](https://codecov.io/gh/ketgo/nameko-kafka/coverage.svg?branch=master)
+[![MIT licensed](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+---
+
 Kafka extension for [Nameko](https://www.nameko.io/) microservice framework. 
 
 ## Introduction
