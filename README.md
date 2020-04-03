@@ -72,7 +72,7 @@ class MyService:
         handle_message(message) 
 ```
 
-The `consume` decorator accepts all the options valid for `python-kafka`'s [KafkaProducer](https://kafka-python.readthedocs.io/en/master/apidoc/KafkaConsumer.html).
+The `consume` decorator accepts all the options valid for `python-kafka`'s [KafkaConsumer](https://kafka-python.readthedocs.io/en/master/apidoc/KafkaConsumer.html).
 
 ## Configurations
 
