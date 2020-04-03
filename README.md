@@ -76,7 +76,7 @@ The `consume` decorator accepts all the options valid for `python-kafka`'s [Kafk
 
 ## Configurations
 
-The extension configurations can be set in a nameko [config.yaml]((https://docs.nameko.io/en/stable/cli.html)) file, or 
+The extension configurations can be set in a nameko [config.yaml](https://docs.nameko.io/en/stable/cli.html) file, or 
 by environment variables.
 
 ### Config File
