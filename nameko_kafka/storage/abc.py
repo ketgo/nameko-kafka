@@ -24,9 +24,9 @@ class OffsetStorage(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def save(self, topic: str, partition: int, offset: int):
+    def write(self, topic: str, partition: int, offset: int):
         """
-            Save offset value for given topic and partition to storage.
+            Write offset value for given topic and partition to storage.
 
             :param topic: message topic
             :param partition: partition number of the topic

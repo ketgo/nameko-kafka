@@ -10,6 +10,7 @@ from kafka import KafkaConsumer as Consumer
 from nameko.extensions import Entrypoint
 
 from .constants import KAFKA_CONSUMER_CONFIG_KEY
+from .storage.abc import OffsetStorage
 
 
 class KafkaConsumer(Entrypoint):
@@ -17,12 +18,14 @@ class KafkaConsumer(Entrypoint):
         Kafak consumer extension for Nameko entrypoint.
 
         :param topics: list of kafka topics to consume
+        :param offset_storage: message offset storage
         :param kwargs: additional kafka consumer configurations as
                        keyword arguments
     """
 
-    def __init__(self, *topics, **kwargs):
+    def __init__(self, *topics, offset_storage: OffsetStorage = None, **kwargs):
         self._topics = topics
+        self._offset_storage = offset_storage
         self._config = {}
         # Extract kafka config options from keyword arguments
         for option in Consumer.DEFAULT_CONFIG:
@@ -54,7 +57,7 @@ class KafkaConsumer(Entrypoint):
 
     def start(self):
         self.container.spawn_managed_thread(
-            self.run, identifier="{}.run".find(self.__class__.__name__)
+            self.run, identifier="{}.run".format(self.__class__.__name__)
         )
 
     def stop(self):
