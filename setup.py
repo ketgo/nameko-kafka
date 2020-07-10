@@ -17,7 +17,7 @@ extra_requires_sql = [
     'SQLAlchemy~=1.3'
 ]
 extra_requires_utils = [
-    'pytest~=4.0',
+    'pytest>=4.6',
     'pytest-cov~=2.6',
     'pylint~=1.0',
     'bandit~=1.6',
