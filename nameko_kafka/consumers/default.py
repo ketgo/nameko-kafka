@@ -16,9 +16,5 @@ class DefaultKafkaConsumer(BaseConsumer):
 
             :param callback: message handler callback
         """
-        try:
-            for message in self:
-                callback(message)
-        except Exception:
-            self.close()
-            raise
+        for message in self:
+            callback(message)

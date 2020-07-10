@@ -35,18 +35,6 @@ class AtLeastOnceConsumer(BaseConsumer):
 
     def start(self, callback):
         """
-            Start consuming messages
-
-            :param callback: message handler callback
-        """
-        try:
-            self._start(callback)
-        except Exception:
-            self.close()
-            raise
-
-    def _start(self, callback):
-        """
             Polls for new messages from broker and then commits offset
             after processing the messages. Committing after processing
             ensures at least once delivery semantic.

@@ -2,40 +2,40 @@
     Tests for at least once semantic Kafka consumer
 """
 
+import pytest
 from kafka.structs import TopicPartition
 
 from nameko_kafka.consumers.least_once import AtLeastOnceConsumer
 
 
-def test_consumer_without_commit_interval(topic, partition, producer):
-    consumer = AtLeastOnceConsumer(topic, group_id=topic, poll_timeout_ms=100)
+@pytest.fixture
+def consumer(topic):
+    _consumer = AtLeastOnceConsumer(
+        topic, group_id=topic, poll_timeout_ms=1000, max_poll_records=1
+    )
+    yield _consumer
+    _consumer.close()
+
+
+def test_consumer(topic, partition, producer, consumer):
     _partition = TopicPartition(topic, partition)
     committed_offset = consumer.committed(_partition)
-    print(committed_offset)
 
-    # producer.send(topic, b"foo-1", b"test", partition=partition)
-    # producer.send(topic, b"foo-2", b"test", partition=partition)
+    producer.send(topic, b"foo-1", b"test", partition=partition)
+    producer.send(topic, b"foo-2", b"test", partition=partition)
+    producer.flush()
 
     messages = []
     committed_offsets = []
 
     def handler(msg):
-        messages.append(msg)
-        committed_offsets.append(consumer.committed(msg.partition))
+        messages.append(msg.value)
+        __partition = TopicPartition(topic, msg.partition)
+        committed_offsets.append(consumer.committed(__partition))
 
     consumer.start(handler)
-    print(messages)
-    print(committed_offsets)
 
-    # Offset is committed after message is processed so the current
-    # offset should not change
-    #assert consumer.committed(_partition) == offset
-    #assert message.value == b"foo-1"
-
-    # Offset should be increase by one
-    #assert consumer.committed(_partition) == offset + 1
-    #assert message.value == b"foo-2"
-
-
-def test_consumer_with_commit_interval(topic, partition, producer):
-    consumer = AtLeastOnceConsumer(topic)
+    assert messages == [b"foo-1", b"foo-2"]
+    # Offset is committed after message is processed so the first member
+    # should be the very first offset when the consumer started.
+    assert committed_offsets == [committed_offset, committed_offset + 1]
