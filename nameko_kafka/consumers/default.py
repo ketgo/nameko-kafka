@@ -17,4 +17,4 @@ class DefaultKafkaConsumer(BaseConsumer):
             :param callback: message handler callback
         """
         for message in self:
-            callback(message)
+            callback(message)  # pragma: no cover

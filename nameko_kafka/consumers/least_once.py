@@ -2,11 +2,7 @@
     At least once semantic Kafka message consumer
 """
 
-import logging
-
 from .base import BaseConsumer
-
-Log = logging.getLogger(__name__)
 
 
 class AtLeastOnceConsumer(BaseConsumer):
@@ -16,7 +12,7 @@ class AtLeastOnceConsumer(BaseConsumer):
         :param topics: list of kafka topics to consume
         :param poll_timeout_ms: milliseconds spent waiting in poll
             if data is not available in the buffer. Default is
-            `float("inf")` resulting in always waiting.
+            100 ms.
         :param kwargs: additional kafka consumer configurations as
             keyword arguments
     """
@@ -31,7 +27,7 @@ class AtLeastOnceConsumer(BaseConsumer):
         for option, value in self.CONFIG.items():
             kwargs[option] = value
         super(AtLeastOnceConsumer, self).__init__(*topics, **kwargs)
-        self._poll_timeout_ms = float(poll_timeout_ms) if poll_timeout_ms else float("inf")
+        self._poll_timeout_ms = float(poll_timeout_ms) if poll_timeout_ms else 100.0
 
     def start(self, callback):
         """
@@ -42,16 +38,7 @@ class AtLeastOnceConsumer(BaseConsumer):
             :param callback: message handler callback
         """
         while True:
-            # By default this performs blocking poll since `consumer_timeout_ms`
-            # is by default set to `float("inf")`. For non-blocking poll set
-            # this parameter to finite value.
             messages = self.poll(timeout_ms=self._poll_timeout_ms)
-
-            # Break while loop if no messages are retrieved from broker. This
-            # will only happen in case of non-blocking poll as blocking poll
-            # only returns when messages are retrieved.
-            if not messages:
-                break
 
             for topic, partition in messages.items():
                 for message in partition:

@@ -9,7 +9,8 @@ from enum import Enum
 from nameko.extensions import Entrypoint
 
 from .constants import KAFKA_CONSUMER_CONFIG_KEY
-from .consumers import BaseConsumer, DefaultKafkaConsumer, AtLeastOnceConsumer
+from .consumers import (BaseConsumer, DefaultKafkaConsumer, AtLeastOnceConsumer,
+                        AtMostOnceConsumer)
 
 
 class Semantic(Enum):
@@ -26,7 +27,8 @@ class Semantic(Enum):
 # Consumer factory
 CONSUMER_FACTORY = {
     Semantic.DEFAULT: DefaultKafkaConsumer,
-    Semantic.AT_LEAST_ONCE: AtLeastOnceConsumer
+    Semantic.AT_LEAST_ONCE: AtLeastOnceConsumer,
+    Semantic.AT_MOST_ONCE: AtMostOnceConsumer,
 }
 
 

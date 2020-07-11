@@ -17,10 +17,10 @@ extra_requires_sql = [
     'SQLAlchemy~=1.3'
 ]
 extra_requires_utils = [
-    'pytest>=4.6',
+    'pytest~=5.0',
     'pytest-cov~=2.6',
-    'pytest-mock~=2.0',
-    'pylint~=1.0',
+    'pytest-mock~=3.0',
+    'pylint~=2.0',
     'bandit~=1.6',
     'PyMySQL~=0.9',
     'psycopg2cffi~=2.7'

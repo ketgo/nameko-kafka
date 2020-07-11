@@ -1,16 +1,16 @@
 """
-    Tests for at least once semantic Kafka consumer
+    Tests for at most once semantic Kafka consumer
 """
 
 import pytest
 from kafka.structs import TopicPartition
 
-from nameko_kafka.consumers.least_once import AtLeastOnceConsumer
+from nameko_kafka.consumers.most_once import AtMostOnceConsumer
 
 
 @pytest.fixture
 def kafka_consumer(topic):
-    _consumer = AtLeastOnceConsumer(
+    _consumer = AtMostOnceConsumer(
         topic, group_id=topic, poll_timeout_ms=1000, max_poll_records=1
     )
     yield _consumer
@@ -36,6 +36,6 @@ def test_consumer(topic, partition, producer, kafka_consumer):
     kafka_consumer.start(handler)
 
     assert messages == [b"foo-1", b"foo-2"]
-    # Offset is committed after message is processed so the first member
-    # should be the very first offset when the consumer started.
-    assert committed_offsets == [committed_offset, committed_offset + 1]
+    # Offset is committed before message is processed so the first member
+    # should be one more than the very first offset when the consumer started.
+    assert committed_offsets == [committed_offset + 1, committed_offset + 2]
