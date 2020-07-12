@@ -7,7 +7,7 @@ import json
 import pytest
 from nameko.testing.services import entrypoint_waiter
 
-from nameko_kafka import consume, KafkaConsumer, Semantic
+from nameko_kafka import consume, KafkaConsumer
 from nameko_kafka.constants import KAFKA_CONSUMER_CONFIG_KEY
 
 
@@ -20,13 +20,13 @@ def service_cls(topic):
         def check_message(self, message):
             return message.value
 
-        @consume(topic + "_least_once", semantic=Semantic.AT_LEAST_ONCE, group_id="test_least_once")
+        @consume(topic + "_least_once", group_id="test_least_once")
         def check_message_least_once(self, message):
-            return message.value
+            return message.value + "_least_once".encode()
 
-        @consume(topic + "_most_once", semantic=Semantic.AT_MOST_ONCE, group_id="test_most_once")
+        @consume(topic + "_most_once", group_id="test_most_once")
         def check_message_most_once(self, message):
-            return message.value
+            return message.value + "_most_once".encode()
 
     return Service
 
@@ -46,8 +46,11 @@ def test_entrypoint(container, producer, topic, partition, wait_for_result, entr
     with entrypoint_waiter(container, "check_message{}".format(suffix), callback=wait_for_result, timeout=10):
         producer.send(topic + suffix, b"foo-1", b"test", partition=partition)
         producer.send(topic + suffix, b"foo-2", b"test", partition=partition)
+        producer.flush()
 
-    assert entrypoint_tracker.get_results() == [b"foo-1", b"foo-2"]
+    assert entrypoint_tracker.get_results() == [
+        b"foo-1" + suffix.encode(), b"foo-2" + suffix.encode()
+    ]
 
 
 @pytest.mark.parametrize("file_config,env_config,kwargs,kafka_config", [
