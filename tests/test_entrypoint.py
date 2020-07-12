@@ -16,15 +16,15 @@ def service_cls(topic):
     class Service:
         name = "kafka-test"
 
-        @consume(topic, group_id="test", max_poll_records=2)
+        @consume(topic, group_id="test", max_poll_records=2, consumer_timeout_ms=1000)
         def check_message(self, message):
             return message.value
 
-        @consume(topic + "_least_once", group_id="test_least_once", max_poll_records=2)
+        @consume(topic + "_least_once", group_id="test_least_once", max_poll_records=2, consumer_timeout_ms=1000)
         def check_message_least_once(self, message):
             return message.value + "_least_once".encode()
 
-        @consume(topic + "_most_once", group_id="test_most_once", max_poll_records=2)
+        @consume(topic + "_most_once", group_id="test_most_once", max_poll_records=2, consumer_timeout_ms=1000)
         def check_message_most_once(self, message):
             return message.value + "_most_once".encode()
 
