@@ -43,10 +43,9 @@ def container(container_factory, service_cls):
     "", "_least_once", "_most_once"
 ])
 def test_entrypoint(container, producer, topic, partition, wait_for_result, entrypoint_tracker, suffix):
-    with entrypoint_waiter(container, "check_message{}".format(suffix), callback=wait_for_result, timeout=10):
+    with entrypoint_waiter(container, "check_message{}".format(suffix), callback=wait_for_result, timeout=30):
         producer.send(topic + suffix, b"foo-1", b"test", partition=partition)
         producer.send(topic + suffix, b"foo-2", b"test", partition=partition)
-        producer.flush()
 
     assert entrypoint_tracker.get_results() == [
         b"foo-1" + suffix.encode(), b"foo-2" + suffix.encode()
