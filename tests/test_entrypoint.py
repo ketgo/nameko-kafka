@@ -8,7 +8,7 @@ import time
 import pytest
 from nameko.testing.services import entrypoint_waiter
 
-from nameko_kafka import consume, KafkaConsumer
+from nameko_kafka import consume, KafkaConsumer, Semantic
 from nameko_kafka.constants import KAFKA_CONSUMER_CONFIG_KEY
 
 
@@ -21,11 +21,11 @@ def service_cls(topic):
         def check_message(self, message):
             return message.value
 
-        @consume(topic + "_least_once", group_id="test_least_once")
+        @consume(topic + "_least_once", semantic=Semantic.AT_LEAST_ONCE, group_id="test_least_once")
         def check_message_least_once(self, message):
             return message.value + "_least_once".encode()
 
-        @consume(topic + "_most_once", group_id="test_most_once")
+        @consume(topic + "_most_once", semantic=Semantic.AT_MOST_ONCE, group_id="test_most_once")
         def check_message_most_once(self, message):
             return message.value + "_most_once".encode()
 
