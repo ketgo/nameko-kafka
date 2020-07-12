@@ -1,20 +1,21 @@
 """
-    Default Kafka consumer
+    Basic Kafak consumer class
 """
 
-from .base import BaseConsumer
+from kafka import KafkaConsumer
 
 
-class DefaultKafkaConsumer(BaseConsumer):
+class DefaultConsumer(KafkaConsumer):
     """
-        Default Kafka consumer used by nameko entrypoint.
+        Kafka consumer used by nameko entrypoint as default consumer.
     """
 
     def start(self, callback):
         """
-            Start consuming messages
+            Start consuming message.
 
-            :param callback: message handler callback
+            :param callback: callback function to handle consumed messages. The
+                function takes ConsumedMessage object as argument.
         """
         for message in self:
             callback(message)  # pragma: no cover

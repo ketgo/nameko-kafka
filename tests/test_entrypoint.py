@@ -20,12 +20,12 @@ def service_cls(topic):
         def check_message(self, message):
             return message.value
 
-        @consume(topic + "_default", semantic=Semantic.DEFAULT, group_id="test_default")
-        def check_message_default(self, message):
-            return message.value
-
         @consume(topic + "_least_once", semantic=Semantic.AT_LEAST_ONCE, group_id="test_least_once")
         def check_message_least_once(self, message):
+            return message.value
+
+        @consume(topic + "_most_once", semantic=Semantic.AT_MOST_ONCE, group_id="test_most_once")
+        def check_message_most_once(self, message):
             return message.value
 
     return Service
@@ -40,7 +40,7 @@ def container(container_factory, service_cls):
 
 
 @pytest.mark.parametrize("suffix", [
-    "", "_default", "_least_once"
+    "", "_least_once", "_most_once"
 ])
 def test_entrypoint(container, producer, topic, partition, wait_for_result, entrypoint_tracker, suffix):
     with entrypoint_waiter(container, "check_message{}".format(suffix), callback=wait_for_result, timeout=10):

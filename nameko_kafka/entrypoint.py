@@ -9,8 +9,8 @@ from enum import Enum
 from nameko.extensions import Entrypoint
 
 from .constants import KAFKA_CONSUMER_CONFIG_KEY
-from .consumers import (BaseConsumer, DefaultKafkaConsumer, AtLeastOnceConsumer,
-                        AtMostOnceConsumer)
+from .consumers import (DefaultConsumer, AtLeastOnceConsumer,
+                        AtMostOnceConsumer, ExactlyOnceConsumer)
 
 
 class Semantic(Enum):
@@ -18,7 +18,6 @@ class Semantic(Enum):
         Supported message delivery semantics
     """
 
-    DEFAULT = "DEFAULT"
     AT_LEAST_ONCE = "AT_LEAST_ONCE"
     AT_MOST_ONCE = "AT_MOST_ONCE"
     EXACTLY_ONCE = "EXACTLY_ONCE"
@@ -26,9 +25,9 @@ class Semantic(Enum):
 
 # Consumer factory
 CONSUMER_FACTORY = {
-    Semantic.DEFAULT: DefaultKafkaConsumer,
     Semantic.AT_LEAST_ONCE: AtLeastOnceConsumer,
     Semantic.AT_MOST_ONCE: AtMostOnceConsumer,
+    Semantic.EXACTLY_ONCE: ExactlyOnceConsumer,
 }
 
 
@@ -38,18 +37,19 @@ class KafkaConsumer(Entrypoint):
 
         :param topics: list of kafka topics to consume
         :param semantic: message delivery semantic to be used by
-            kafka consumer. Possible values are given by the `Semantic`
-            enum. Default is set to `Semantic.DEFAULT`.
+            kafka consumer. Possible values are defined by the `Semantic`
+            enum. Default is set to `None` which results in the use of
+            `:class:DefaultConsumer` class.
         :param kwargs: additional kafka consumer configurations as
             keyword arguments
     """
 
-    def __init__(self, *topics, semantic=Semantic.DEFAULT, **kwargs):
+    def __init__(self, *topics, semantic=None, **kwargs):
         self._topics = topics
         self._semantic = semantic
         self._config = {}
         # Extract kafka config options from keyword arguments
-        for option in BaseConsumer.DEFAULT_CONFIG:
+        for option in DefaultConsumer.DEFAULT_CONFIG:
             value = kwargs.pop(option, None)
             if value:
                 self._config[option] = value
@@ -74,7 +74,7 @@ class KafkaConsumer(Entrypoint):
 
     def setup(self):
         config = self._parse_config()
-        consumer_cls = CONSUMER_FACTORY.get(self._semantic, DefaultKafkaConsumer)
+        consumer_cls = CONSUMER_FACTORY.get(self._semantic, DefaultConsumer)
         self._consumer = consumer_cls(*self._topics, **config)
 
     def start(self):

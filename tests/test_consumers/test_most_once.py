@@ -11,7 +11,7 @@ from nameko_kafka.consumers.most_once import AtMostOnceConsumer
 @pytest.fixture
 def kafka_consumer(topic):
     _consumer = AtMostOnceConsumer(
-        topic, group_id=topic, poll_timeout_ms=1000, max_poll_records=1
+        topic, group_id=topic, max_poll_records=1, consumer_timeout_ms=1000
     )
     yield _consumer
     _consumer.close()

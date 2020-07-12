@@ -2,17 +2,16 @@
     At most once semantic Kafka message consumer
 """
 
-from .base import BaseConsumer
+import time
+
+from .default import DefaultConsumer
 
 
-class AtMostOnceConsumer(BaseConsumer):
+class AtMostOnceConsumer(DefaultConsumer):
     """
         At most once semantic Kafka message consumer.
 
         :param topics: list of kafka topics to consume
-        :param poll_timeout_ms: milliseconds spent waiting in poll
-            if data is not available in the buffer. Default is
-            100 ms.
         :param kwargs: additional kafka consumer configurations as
             keyword arguments
     """
@@ -27,23 +26,41 @@ class AtMostOnceConsumer(BaseConsumer):
         for option, value in self.CONFIG.items():
             kwargs[option] = value
         super(AtMostOnceConsumer, self).__init__(*topics, **kwargs)
-        self._poll_timeout_ms = float(poll_timeout_ms) if poll_timeout_ms else 100.0
+        self._generator = None
 
-    def start(self, callback):
+    def __next__(self):
+        if self._closed:
+            raise StopIteration('KafkaConsumer closed')
+        return self._next()
+
+    def _next(self):
         """
-            Polls for new messages from broker and then commits offset
-            before processing the messages. Committing before processing
-            ensures at least once delivery semantic.
-
-            :param callback: message handler callback
+            Get next message from the polled batch.
         """
-        while True:
-            messages = self.poll(timeout_ms=self._poll_timeout_ms)
+        # Sets the value of self._consumer_timeout to current time added with
+        # consumer_timeout_ms value specified in the configurations.
+        self._set_consumer_timeout()
+        while time.time() < self._consumer_timeout:
+            if not self._generator:
+                self._generator = self._message_generator()
+            try:
+                return next(self._generator)
+            except StopIteration:
+                self._generator = None
+        raise StopIteration()
 
-            # Commits the latest offsets returned by poll
-            self.commit()
+    def _message_generator(self):
+        """
+            Generator yielding messages polled from broker. The offsets
+            are committed before yielding the messages resulting in at
+            most once delivery.
+        """
+        timeout_ms = 1000 * (self._consumer_timeout - time.time())
+        messages = self.poll(timeout_ms=timeout_ms)
 
-            for topic, partition in messages.items():
-                for message in partition:
-                    # Invoke message handler to process message
-                    callback(message)
+        # Commits the latest offsets returned by poll
+        self.commit()
+
+        for topic, partition in messages.items():
+            for message in partition:
+                yield message
