@@ -6,7 +6,7 @@ from typing import Dict
 
 from pymongo import MongoClient
 
-from .abc import OffsetStorage
+from .base import OffsetStorage
 
 DEFAULT_DB_NAME = "nameko_kafka_offset"
 DEFAULT_COLLECTION = "offset"

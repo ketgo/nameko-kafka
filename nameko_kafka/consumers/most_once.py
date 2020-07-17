@@ -21,7 +21,7 @@ class AtMostOnceConsumer(DefaultConsumer):
         "enable_auto_commit": False
     }
 
-    def __init__(self, *topics, poll_timeout_ms=None, **kwargs):
+    def __init__(self, *topics, **kwargs):
         # Override passed consumer config with correct parameters
         for option, value in self.CONFIG.items():
             kwargs[option] = value

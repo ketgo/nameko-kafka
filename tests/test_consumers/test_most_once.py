@@ -11,7 +11,7 @@ from nameko_kafka.consumers.most_once import AtMostOnceConsumer
 @pytest.fixture
 def kafka_consumer(topic):
     _consumer = AtMostOnceConsumer(
-        topic, group_id=topic, max_poll_records=1, consumer_timeout_ms=1000
+        topic, group_id=topic, max_poll_records=2, consumer_timeout_ms=1000
     )
     yield _consumer
     _consumer.close()
@@ -23,6 +23,8 @@ def test_consumer(topic, partition, producer, kafka_consumer):
 
     producer.send(topic, b"foo-1", b"test", partition=partition)
     producer.send(topic, b"foo-2", b"test", partition=partition)
+    producer.send(topic, b"foo-3", b"test", partition=partition)
+    producer.send(topic, b"foo-4", b"test", partition=partition)
     producer.flush()
 
     messages = []
@@ -35,7 +37,10 @@ def test_consumer(topic, partition, producer, kafka_consumer):
 
     kafka_consumer.start(handler)
 
-    assert messages == [b"foo-1", b"foo-2"]
+    assert messages == [b"foo-1", b"foo-2", b"foo-3", b"foo-4"]
     # Offset is committed before message is processed so the first member
     # should be one more than the very first offset when the consumer started.
-    assert committed_offsets == [committed_offset + 1, committed_offset + 2]
+    assert committed_offsets == [
+        committed_offset + 2, committed_offset + 2,
+        committed_offset + 4, committed_offset + 4
+    ]
