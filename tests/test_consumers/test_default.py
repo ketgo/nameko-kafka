@@ -2,6 +2,8 @@
     Tests for default Kafka consumer
 """
 
+import time
+
 import pytest
 
 from nameko_kafka.consumers.default import DefaultConsumer
@@ -19,7 +21,7 @@ def kafka_consumer(topic):
 def test_consumer(topic, partition, producer, kafka_consumer):
     producer.send(topic, b"foo-1", b"test", partition=partition)
     producer.send(topic, b"foo-2", b"test", partition=partition)
-    producer.flush()
+    time.sleep(1)
 
     messages = []
 

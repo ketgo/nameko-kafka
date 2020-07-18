@@ -5,72 +5,37 @@
 from abc import ABC, abstractmethod
 
 
-class OffsetRecord:
-    """
-        Offset record data class
-
-        :param topic: topic to which the offset belongs
-        :param partition: partition of the topic to which the offset belongs
-        :param offset: value of the offset
-    """
-
-    def __init__(self, topic, partition, offset):
-        self._topic = topic
-        self._partition = partition
-        self._offset = offset
-
-    @property
-    def topic(self):
-        """
-            Topic of the offset.
-        """
-        return self._topic
-
-    @property
-    def partition(self):
-        """
-            Topic partition of the offset.
-        """
-        return self._partition
-
-    @property
-    def offset(self):
-        """
-            Value of the offset.
-        """
-        return self._offset
-
-
 class OffsetStorage(ABC):
     """
         Abstract class exposing interface to implement different
         offset storage backends.
     """
 
-    def __init__(self):
-        self._records = []
-
     def __enter__(self):
-        self._offsets = []
+        # Buffer containing offsets to be stored. It maps topic-partition
+        # tuple keys to an offset value.
+        self._offsets = {}
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.commit()
 
     def commit(self):
-        self.write(self._offsets)
+        offsets = getattr(self, "_offsets", {})
+        self.write(offsets)
 
     def add(self, topic, partition, offset):
         """
-            Add offset for given topic and partition to the
-            list of offsets to be stored.
+            Add offset for given topic and partition to buffer for
+            storage. The offset is increased by one so that the next
+            un-processed message will be returned on next read by the
+            consumer.
 
             :param topic: topic of the offset
             :param partition: topic partition of the offset
             :param offset: value of offset
         """
-        offset = OffsetRecord(topic, partition, offset)
-        self._offsets.append(offset)
+        self._offsets[(topic, partition)] = offset + 1
 
     @abstractmethod
     def setup(self):
@@ -94,15 +59,16 @@ class OffsetStorage(ABC):
 
             :param topic: message topic
             :param partition: partition number of the topic
-            :returns: last committed OffsetRecord object
+            :returns: last committed offset value
         """
         raise NotImplementedError()
 
     @abstractmethod
     def write(self, offsets):
         """
-            Write list of OffsetRecord object to storage.
+            Write offsets to storage.
 
-            :param offsets: list of OffsetRecord objects
+            :param offsets: mapping between topic-partition
+                tuples and corresponding latest offset value
         """
         raise NotImplementedError()

@@ -2,14 +2,12 @@
     MongoDB offset storage
 """
 
-from typing import Dict
-
 from pymongo import MongoClient
 
 from .base import OffsetStorage
 
 DEFAULT_DB_NAME = "nameko_kafka_offset"
-DEFAULT_COLLECTION = "offset"
+DEFAULT_COLLECTION_NAME = "offset"
 
 
 class MongoStorage(OffsetStorage):
@@ -21,34 +19,47 @@ class MongoStorage(OffsetStorage):
         :param collection: offset document collection name
     """
 
-    def __init__(
-            self,
-            client: MongoClient,
-            db_name: str,
-            collection: str
-    ):
-        self._collection = client[db_name][collection]
+    def __init__(self, client, db_name=None, collection=None):
+        if not isinstance(client, MongoClient):
+            raise TypeError(
+                "'MongoClient' object required by the storage. "
+                "Invalid object of type '{}' given.".format(type(client))
+            )
+        self._client = client
+        self._db_name = db_name or DEFAULT_DB_NAME
+        self._collection_name = collection or DEFAULT_COLLECTION_NAME
+        self._collection = None
 
-    def read(self, topic: str, partition: int) -> int:
+    def setup(self):
+        self._collection = self._client[self._db_name][self._collection_name]
+
+    def stop(self):
+        self._client.close()
+
+    def read(self, topic, partition):
         filter_query = self._get_filter_query(topic, partition)
         document = self._collection.find_one(filter_query)
-        offset = document["offset"] + 1 if document else 0
+        offset = document["offset"] if document else 0
 
         return offset
 
-    def write(self, topic: str, partition: int, offset: int):
+    def write(self, offsets):
+        for (topic, partition), offset in offsets.items():
+            self._write(topic, partition, offset)
+
+    def _write(self, topic, partition, offset):
         filter_query = self._get_filter_query(topic, partition)
         document = self._get_document(topic, partition, offset)
         self._collection.replace_one(filter_query, document, upsert=True)
 
     @staticmethod
-    def _get_filter_query(topic: str, partition: int) -> Dict:
+    def _get_filter_query(topic, partition):
         return {
             "_id": "{}-{}".format(topic, partition)
         }
 
     @staticmethod
-    def _get_document(topic: str, partition: int, offset: int) -> Dict:
+    def _get_document(topic, partition, offset):
         return {
             "_id": "{}-{}".format(topic, partition),
             "offset": offset

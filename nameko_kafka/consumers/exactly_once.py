@@ -29,7 +29,7 @@ class SaveOffsetsRebalanceListener(ConsumerRebalanceListener):
     def on_partitions_assigned(self, assigned):
         for tp in assigned:
             offset = self._storage.read(tp.topic, tp.partition)
-            self._consumer.seek(tp, offset.value)
+            self._consumer.seek(tp, offset)
 
 
 class ExactlyOnceConsumer(DefaultConsumer):
@@ -67,6 +67,12 @@ class ExactlyOnceConsumer(DefaultConsumer):
         self.subscribe(topics, listener=listener)
         # Poll once to ensure joining of consumer group and partitions assigned
         self.poll(0)
+
+        # Seek to the offsets stored in the storage
+        for tp in self.assignment():
+            offset = self._storage.read(tp.topic, tp.partition)
+            self.seek(tp, offset)
+
         return self
 
     def __next__(self):

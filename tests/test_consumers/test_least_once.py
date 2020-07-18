@@ -2,6 +2,8 @@
     Tests for at least once semantic Kafka consumer
 """
 
+import time
+
 import pytest
 from kafka.structs import TopicPartition
 
@@ -25,7 +27,7 @@ def test_consumer(topic, partition, producer, kafka_consumer):
     producer.send(topic, b"foo-2", b"test", partition=partition)
     producer.send(topic, b"foo-3", b"test", partition=partition)
     producer.send(topic, b"foo-4", b"test", partition=partition)
-    producer.flush()
+    time.sleep(1)
 
     messages = []
     committed_offsets = []
