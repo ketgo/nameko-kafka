@@ -6,8 +6,8 @@ from pymongo import MongoClient
 
 from .base import OffsetStorage
 
-DEFAULT_DB_NAME = "nameko_kafka_offset"
-DEFAULT_COLLECTION_NAME = "offset"
+DEFAULT_DB_NAME = "nameko_kafka_offsets"
+DEFAULT_COLLECTION_NAME = "offsets"
 
 
 class MongoStorage(OffsetStorage):
