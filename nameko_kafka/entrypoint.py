@@ -48,12 +48,18 @@ class KafkaConsumer(Entrypoint):
         self._topics = topics
         self._semantic = semantic
         self._config = {}
+        self._consumer_cls = CONSUMER_FACTORY.get(self._semantic, DefaultConsumer)
         # Extract kafka config options from keyword arguments
-        for option in DefaultConsumer.DEFAULT_CONFIG:
+        for option in self._consumer_cls.DEFAULT_CONFIG:
             value = kwargs.pop(option, None)
             if value:
                 self._config[option] = value
         self._consumer = None
+        # Check for exactly once semantic storage option
+        if "storage" in kwargs:
+            value = kwargs.pop("storage", None)
+            if value:
+                self._config["storage"] = value
         try:
             super(KafkaConsumer, self).__init__(**kwargs)
         except TypeError:
@@ -74,8 +80,7 @@ class KafkaConsumer(Entrypoint):
 
     def setup(self):
         config = self._parse_config()
-        consumer_cls = CONSUMER_FACTORY.get(self._semantic, DefaultConsumer)
-        self._consumer = consumer_cls(*self._topics, **config)
+        self._consumer = self._consumer_cls(*self._topics, **config)
 
     def start(self):
         self.container.spawn_managed_thread(

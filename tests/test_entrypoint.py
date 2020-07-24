@@ -10,6 +10,8 @@ from nameko.testing.services import entrypoint_waiter
 
 from nameko_kafka import consume, KafkaConsumer, Semantic
 from nameko_kafka.constants import KAFKA_CONSUMER_CONFIG_KEY
+from nameko_kafka.storage import MongoStorage
+from .storage.test_mongo import create_client, DB_NAME, COLLECTION
 
 
 @pytest.fixture
@@ -29,6 +31,15 @@ def service_cls(topic):
         def check_message_most_once(self, message):
             return message.value + "_most_once".encode()
 
+        @consume(
+            topic + "_exactly_once_mongodb",
+            semantic=Semantic.EXACTLY_ONCE,
+            group_id="test_exactly_once_mongodb",
+            storage=MongoStorage(create_client(), db_name=DB_NAME, collection=COLLECTION)
+        )
+        def check_message_exactly_once_mongodb(self, message):
+            return message.value + "_exactly_once_mongodb".encode()
+
     return Service
 
 
@@ -41,7 +52,7 @@ def container(container_factory, service_cls):
 
 
 @pytest.mark.parametrize("suffix", [
-    "", "_least_once", "_most_once"
+    "", "_least_once", "_most_once", "_exactly_once_mongodb"
 ])
 def test_entrypoint(container, producer, topic, partition, wait_for_result, entrypoint_tracker, suffix):
     with entrypoint_waiter(container, "check_message{}".format(suffix), callback=wait_for_result, timeout=30):
