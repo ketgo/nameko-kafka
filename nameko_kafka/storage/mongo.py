@@ -34,6 +34,7 @@ class MongoStorage(OffsetStorage):
         self._collection = self._client[self._db_name][self._collection_name]
 
     def stop(self):
+        self._collection = None
         self._client.close()
 
     def read(self, topic, partition):

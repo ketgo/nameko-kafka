@@ -3,10 +3,8 @@
 """
 
 import time
-import uuid
 
 import pytest
-from kafka import KafkaAdminClient
 
 from nameko_kafka.consumers.exactly_once import ExactlyOnceConsumer
 from nameko_kafka.storage.base import OffsetStorage
@@ -36,20 +34,8 @@ class MockStorage(OffsetStorage):
 
 
 @pytest.fixture
-def random_topic():
-    return str(uuid.uuid4())
-
-
-@pytest.fixture
 def offset_storage():
     return MockStorage()
-
-
-@pytest.fixture
-def kafka_admin():
-    _client = KafkaAdminClient()
-    yield _client
-    _client.close()
 
 
 @pytest.fixture
