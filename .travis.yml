@@ -6,6 +6,7 @@ language: python
 
 services:
   - docker
+  - mongodb
 
 cache: pip
 
