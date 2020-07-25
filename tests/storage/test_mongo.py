@@ -7,7 +7,7 @@ import os
 import pytest
 from pymongo import MongoClient
 
-from nameko_kafka.storage.mongo import MongoStorage
+from nameko_kafka.storage.mongo import MongoStorage, DEFAULT_DB_NAME, DEFAULT_COLLECTION_NAME
 
 DEFAULT_MONGODB_HOST = "127.0.0.1:27017"
 DB_NAME = 'nameko_kafka_test'
@@ -37,6 +37,18 @@ def offset_storage(client, collection):
     storage.stop()
     collection.delete_many({})
     client.close()
+
+
+def test_create(client):
+    storage = MongoStorage(client)
+    assert storage._db_name == DEFAULT_DB_NAME
+    assert storage._collection_name == DEFAULT_COLLECTION_NAME
+
+
+def test_create_error():
+    with pytest.raises(TypeError):
+        # Should be a MongoClient object
+        MongoStorage(object())
 
 
 def test_setup(client, collection):

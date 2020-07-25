@@ -7,4 +7,5 @@
 # v0.2
 
 - Fixed identifier of managed spawned thread in entrypoint 
-- Support different commit strategies
+- Added support different commit strategies
+- Added MongoDB offset storage for exactly once delivery semantics

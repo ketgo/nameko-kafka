@@ -18,7 +18,7 @@ extra_requires_sql = [
 ]
 extra_requires_utils = [
     'pytest~=5.0',
-    'pytest-cov~=2.6',
+    'pytest-cov~=2.0',
     'pytest-mock~=3.0',
     'pylint~=2.0',
     'bandit~=1.6',

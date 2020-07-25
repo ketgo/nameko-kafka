@@ -30,7 +30,7 @@ class AtLeastOnceConsumer(DefaultConsumer):
 
     def __next__(self):
         if self._closed:
-            raise StopIteration('KafkaConsumer closed')
+            raise StopIteration('KafkaConsumer closed')  # pragma: no cover
         return self._next()
 
     def _next(self):
@@ -47,7 +47,7 @@ class AtLeastOnceConsumer(DefaultConsumer):
                 return next(self._generator)
             except StopIteration:
                 self._generator = None
-        raise StopIteration()
+        raise StopIteration()  # pragma: no cover
 
     def _message_generator(self):
         """

@@ -23,7 +23,7 @@ $ pip install nameko-kafka
 
 ## Usage
 
-The extension can be used for both, service dependency and entrypoint. Example usage for both the cases are shown in the
+The extension can be used for both, a service dependency and entrypoint. Example usage for both cases are shown in the
 following sections.
 
 ## Dependency
@@ -72,7 +72,56 @@ class MyService:
         handle_message(message) 
 ```
 
-The `consume` decorator accepts all the options valid for `python-kafka`'s [KafkaProducer](https://kafka-python.readthedocs.io/en/master/apidoc/KafkaConsumer.html).
+The `consume` decorator accepts all the options valid for `python-kafka`'s [KafkaConsumer](https://kafka-python.readthedocs.io/en/master/apidoc/KafkaConsumer.html). 
+
+On top of the default `python-kafka`'s autocommit feature, the entrypoint also comes with support for three different 
+types of offset commit strategies: _at least once_, _at most once_ and _exactly once_. The three strategies correspond 
+to the different message delivery semantics achievable in Kafka. Examples for each are shown in the following subsections.
+
+#### At Least Once
+
+```python
+from nameko_kafka import consume, Semantic
+
+
+class MyService:
+    """
+        My microservice 
+    """
+    name = "my-service"
+    
+    # At least once semantic consumer
+    @consume("kafka-topic", group_id="my-group", bootstrap_servers='localhost:1234', semantic=Semantic.AT_LEAST_ONCE)
+    def method(self, message):
+        # Your message handler
+        handle_message(message) 
+```
+
+#### At Most Once
+
+```python
+from nameko_kafka import consume, Semantic
+
+
+class MyService:
+    """
+        My microservice 
+    """
+    name = "my-service"
+    
+    # At most once semantic consumer
+    @consume("kafka-topic", group_id="my-group", bootstrap_servers='localhost:1234', semantic=Semantic.AT_MOST_ONCE)
+    def method(self, message):
+        # Your message handler
+        handle_message(message) 
+```
+
+#### Exactly Once
+
+The exactly once semantic consumer requires a persistent storage to store message offsets. Nameko-kafka comes with some 
+out of the box storage 
+
+TODO
 
 ## Configurations
 
@@ -109,11 +158,11 @@ KAFKA_PRODUCER='{"bootstrap_servers": "localhost:1234", "retries": 3}'
 
 - [x] Kafka Entrypoint
 - [x] Kafka Dependency
-- [ ] Commit strategies: 
+- [x] Commit strategies: 
     - _ALMOST_ONCE_DELIVERY_
     - _AT_LEAST_ONCE_DELIVERY_ 
     - _EXACTLY_ONCE_DELIVERY_
-- [ ] Commit storage for _EXACT_ONCE_DELIVERY_ strategy
+- [x] Commit storage for _EXACT_ONCE_DELIVERY_ strategy
 
 ## Developers
 
