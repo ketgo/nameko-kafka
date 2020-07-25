@@ -54,7 +54,7 @@ class OffsetStorage(ABC):
     @abstractmethod
     def read(self, topic, partition):
         """
-            Read last stored OffsetRecord object from storage
+            Read last stored offset from storage
             for given topic and partition
 
             :param topic: message topic
