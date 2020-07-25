@@ -291,4 +291,4 @@ $ make lint
 
 ## Contributions
 
-Pull requests always welcomed. Thanks!
+Issue reports and Pull requests are always welcomed. Thanks!
