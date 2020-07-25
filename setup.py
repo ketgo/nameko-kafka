@@ -10,6 +10,25 @@ with open(path.join(here, 'nameko_kafka', 'version.py'), mode='r', encoding='utf
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
+extra_requires_mongo = [
+    'pymongo~=3.5'
+]
+extra_requires_sql = [
+    'SQLAlchemy~=1.3'
+]
+extra_requires_utils = [
+    'pytest~=5.0',
+    'pytest-cov~=2.0',
+    'pytest-mock~=3.0',
+    'pylint~=2.0',
+    'bandit~=1.6',
+    'PyMySQL~=0.9',
+    'psycopg2cffi~=2.7'
+]
+extra_requires_dev = extra_requires_utils + \
+                     extra_requires_mongo + \
+                     extra_requires_sql
+
 if __name__ == '__main__':
     setup(
         name='nameko_kafka',
@@ -31,12 +50,9 @@ if __name__ == '__main__':
             'wrapt==1.11'  # Fixed version: needed by kafka-python
         ],
         extras_require={
-            'dev': [
-                'pytest',
-                'pytest-cov',
-                'pytest-mock',
-                'pylint',
-            ]
+            'dev': extra_requires_dev,
+            'mongo': extra_requires_mongo,
+            'sql': extra_requires_sql,
         },
         packages=find_packages(exclude=('tests',)),
         classifiers=[

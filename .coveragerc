@@ -5,6 +5,5 @@ exclude_lines =
 omit =
     setup.py
     ./venv/*
-    ./nameko-mongoengine/version.py
     ./benchmarks/*
     ./tests/*

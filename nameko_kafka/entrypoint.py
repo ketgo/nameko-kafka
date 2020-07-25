@@ -4,12 +4,31 @@
 
 import json
 import os
-from functools import partial
+from enum import Enum
 
-from kafka import KafkaConsumer as Consumer
 from nameko.extensions import Entrypoint
 
 from .constants import KAFKA_CONSUMER_CONFIG_KEY
+from .consumers import (DefaultConsumer, AtLeastOnceConsumer,
+                        AtMostOnceConsumer, ExactlyOnceConsumer)
+
+
+class Semantic(Enum):
+    """
+        Supported message delivery semantics
+    """
+
+    AT_LEAST_ONCE = "AT_LEAST_ONCE"
+    AT_MOST_ONCE = "AT_MOST_ONCE"
+    EXACTLY_ONCE = "EXACTLY_ONCE"
+
+
+# Consumer factory
+CONSUMER_FACTORY = {
+    Semantic.AT_LEAST_ONCE: AtLeastOnceConsumer,
+    Semantic.AT_MOST_ONCE: AtMostOnceConsumer,
+    Semantic.EXACTLY_ONCE: ExactlyOnceConsumer,
+}
 
 
 class KafkaConsumer(Entrypoint):
@@ -17,19 +36,30 @@ class KafkaConsumer(Entrypoint):
         Kafak consumer extension for Nameko entrypoint.
 
         :param topics: list of kafka topics to consume
+        :param semantic: message delivery semantic to be used by
+            kafka consumer. Possible values are defined by the `Semantic`
+            enum. Default is set to `None` which results in the use of
+            `:class:DefaultConsumer` class.
         :param kwargs: additional kafka consumer configurations as
-                       keyword arguments
+            keyword arguments
     """
 
-    def __init__(self, *topics, **kwargs):
+    def __init__(self, *topics, semantic=None, **kwargs):
         self._topics = topics
+        self._semantic = semantic
         self._config = {}
+        self._consumer_cls = CONSUMER_FACTORY.get(self._semantic, DefaultConsumer)
         # Extract kafka config options from keyword arguments
-        for option in Consumer.DEFAULT_CONFIG:
+        for option in self._consumer_cls.DEFAULT_CONFIG:
             value = kwargs.pop(option, None)
             if value:
                 self._config[option] = value
         self._consumer = None
+        # Check for exactly once semantic storage option
+        if "storage" in kwargs:
+            value = kwargs.pop("storage", None)
+            if value:
+                self._config["storage"] = value
         try:
             super(KafkaConsumer, self).__init__(**kwargs)
         except TypeError:
@@ -50,33 +80,23 @@ class KafkaConsumer(Entrypoint):
 
     def setup(self):
         config = self._parse_config()
-        self._consumer = Consumer(*self._topics, **config)
+        self._consumer = self._consumer_cls(*self._topics, **config)
 
     def start(self):
         self.container.spawn_managed_thread(
-            self.run, identifier="{}.run".find(self.__class__.__name__)
+            self.run, identifier="{}.run".format(self.__class__.__name__)
         )
 
     def stop(self):
         self._consumer.close()
 
     def run(self):
-        for message in self._consumer:
-            self.handle_message(message)  # pragma: no cover
+        self._consumer.start(self.handle_message)
 
     def handle_message(self, message):
-        handle_result = partial(self.handle_result, message)
-
         args = (message,)
         kwargs = {}
-
-        self.container.spawn_worker(
-            self, args, kwargs, handle_result=handle_result
-        )
-
-    def handle_result(self, message, worker_ctx, result, exc_info):
-        # TODO: Add commit storage for exactly-once delivery
-        return result, exc_info
+        self.container.spawn_worker(self, args, kwargs)
 
 
 consume = KafkaConsumer.decorator

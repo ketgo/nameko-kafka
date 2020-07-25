@@ -2,8 +2,10 @@
     Testing utility fixtures
 """
 
+import uuid
+
 import pytest
-from kafka import KafkaConsumer as Consumer
+from kafka import KafkaConsumer as Consumer, KafkaAdminClient
 from kafka import KafkaProducer as Producer
 from nameko.containers import ServiceContainer
 
@@ -14,8 +16,20 @@ def topic():
 
 
 @pytest.fixture
+def random_topic():
+    return str(uuid.uuid4())
+
+
+@pytest.fixture
 def partition():
     return 0
+
+
+@pytest.fixture
+def kafka_admin():
+    _client = KafkaAdminClient()
+    yield _client
+    _client.close()
 
 
 @pytest.fixture
@@ -26,7 +40,7 @@ def producer():
 
 
 @pytest.fixture
-def consumer(topic):
+def consumer(topic, kafka_admin):
     consumer = Consumer(topic, group_id=topic)
     yield consumer
     consumer.close()
