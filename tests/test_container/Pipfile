@@ -1,0 +1,29 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+black = "==19.3b0"
+bpython = "*"
+coverage = "*"
+flake8 = "*"
+isort = "*"
+pytest = "*"
+rope = "*"
+
+[packages]
+environs = "*"
+gelf-formatter = "*"
+nameko = "*"
+nameko_sqlalchemy = "*"
+nameko_kafka = "*"
+jsonschema = "*"
+pendulum = "*"
+orm = {editable = true,git = "ssh://git@git.myhost.net/my-system/orm.git",ref = "master"}
+pymongo = "*"
+sqlalchemy-utc = "*"
+pytz = "*"
+
+[requires]
+python_version = "3.6"
