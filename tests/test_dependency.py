@@ -12,10 +12,10 @@ from nameko_kafka.constants import KAFKA_PRODUCER_CONFIG_KEY
 
 
 @pytest.fixture
-def service_cls(topic, partition):
+def service_cls(bootstrap_servers, topic, partition):
     class Service:
         name = "kafka-test"
-        producer = KafkaProducer()
+        producer = KafkaProducer(bootstrap_servers=bootstrap_servers)
 
         @dummy
         def dispatch(self, message, key):

@@ -1,17 +1,11 @@
-FROM python:3-alpine
+FROM python:3.6-buster
 
-ARG PACKAGES='gcc musl-dev libressl-dev libffi-dev pcre pcre-dev python3-dev'
+RUN apt-get update
+RUN apt-get install -y pipenv
 
-RUN apk update && apk add --no-cache ${PACKAGES}
+WORKDIR /test
 
-WORKDIR /app
+COPY tests ./tests
+RUN chmod +x ./tests/test_container/entrypoint.sh
 
-COPY setup.py .
-RUN mkdir src
-RUN pip install -e .
-
-COPY src/ ./src
-COPY entrypoint.sh ./entrypoint.sh
-RUN chmod +x ./entrypoint.sh
-
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["./tests/test_container/entrypoint.sh"]

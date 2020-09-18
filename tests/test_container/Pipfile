@@ -20,7 +20,7 @@ nameko_sqlalchemy = "*"
 nameko_kafka = "*"
 jsonschema = "*"
 pendulum = "*"
-orm = {editable = true,git = "ssh://git@git.myhost.net/my-system/orm.git",ref = "master"}
+# orm = {editable = true,git = "ssh://git@git.myhost.net/my-system/orm.git",ref = "master"}
 pymongo = "*"
 sqlalchemy-utc = "*"
 pytz = "*"

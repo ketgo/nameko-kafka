@@ -11,28 +11,39 @@ from nameko.testing.services import entrypoint_waiter
 from nameko_kafka import consume, KafkaConsumer, Semantic
 from nameko_kafka.constants import KAFKA_CONSUMER_CONFIG_KEY
 from nameko_kafka.storage import MongoStorage
-from .storage.test_mongo import create_client, DB_NAME, COLLECTION
+from .test_storage.test_mongo import create_client, DB_NAME, COLLECTION
 
 
 @pytest.fixture
-def service_cls(topic):
+def service_cls(bootstrap_servers, topic):
     class Service:
         name = "kafka-test"
 
-        @consume(topic, group_id="test")
+        @consume(topic, bootstrap_servers=bootstrap_servers, group_id="test")
         def check_message(self, message):
             return message.value
 
-        @consume(topic + "_least_once", semantic=Semantic.AT_LEAST_ONCE, group_id="test_least_once")
+        @consume(
+            topic + "_least_once",
+            bootstrap_servers=bootstrap_servers,
+            semantic=Semantic.AT_LEAST_ONCE,
+            group_id="test_least_once"
+        )
         def check_message_least_once(self, message):
             return message.value + "_least_once".encode()
 
-        @consume(topic + "_most_once", semantic=Semantic.AT_MOST_ONCE, group_id="test_most_once")
+        @consume(
+            topic + "_most_once",
+            bootstrap_servers=bootstrap_servers,
+            semantic=Semantic.AT_MOST_ONCE,
+            group_id="test_most_once"
+        )
         def check_message_most_once(self, message):
             return message.value + "_most_once".encode()
 
         @consume(
             topic + "_exactly_once_mongodb",
+            bootstrap_servers=bootstrap_servers,
             semantic=Semantic.EXACTLY_ONCE,
             group_id="test_exactly_once_mongodb",
             storage=MongoStorage(create_client(), db_name=DB_NAME, collection=COLLECTION)

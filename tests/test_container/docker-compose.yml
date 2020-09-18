@@ -1,16 +1,36 @@
-version: '2'
+version: '3.6'
 
 services:
 
   sandbox:
+    container_name: test.kafka.sandbox
+    depends_on:
+      - kafka
+      - mongodb
     image: sandbox:latest
-      build:
-        context: .
-      command: bash
-      networks:
-        - kafka_vnet
+    build:
+      context: ../../
+      dockerfile: tests/test_container/Dockerfile
+    command: run
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+    environment:
+      BOOTSTRAP_SERVERS: test.kafka.broker
+      MONGODB_HOST: mongodb://mongo:password@test.kafka.mongodb
+    networks:
+      - kafka_vnet
+
+  mongodb:
+    container_name: test.kafka.mongodb
+    image: mongo
+    networks:
+      - kafka_vnet
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: password
 
   zookeeper:
+    container_name: test.kafka.zookeeper
     image: 'bitnami/zookeeper:3'
     networks:
       - kafka_vnet
@@ -18,15 +38,13 @@ services:
       - ALLOW_ANONYMOUS_LOGIN=yes
 
   kafka:
+    container_name: test.kafka.broker
     image: 'bitnami/kafka:2'
     networks:
       - kafka_vnet
     environment:
-      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=test.kafka.zookeeper:2181
       - ALLOW_PLAINTEXT_LISTENER=yes
-      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      - KAFKA_CFG_LISTENERS=PLAINTEXT://:29092,PLAINTEXT_HOST://:9092
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
     depends_on:
       - zookeeper
 

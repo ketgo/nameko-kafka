@@ -10,9 +10,9 @@ from nameko_kafka.consumers.default import DefaultConsumer
 
 
 @pytest.fixture
-def kafka_consumer(topic):
+def kafka_consumer(bootstrap_servers, topic):
     _consumer = DefaultConsumer(
-        topic, group_id=topic, max_poll_records=2, consumer_timeout_ms=1000
+        topic, bootstrap_servers=bootstrap_servers, group_id=topic, max_poll_records=2, consumer_timeout_ms=1000
     )
     yield _consumer
     _consumer.close()

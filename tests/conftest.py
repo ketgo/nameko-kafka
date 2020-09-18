@@ -2,12 +2,18 @@
     Testing utility fixtures
 """
 
+import os
 import uuid
 
 import pytest
 from kafka import KafkaConsumer as Consumer, KafkaAdminClient
 from kafka import KafkaProducer as Producer
 from nameko.containers import ServiceContainer
+
+
+@pytest.fixture
+def bootstrap_servers():
+    return os.getenv("BOOTSTRAP_SERVERS", "localhost")
 
 
 @pytest.fixture
@@ -26,22 +32,22 @@ def partition():
 
 
 @pytest.fixture
-def kafka_admin():
-    _client = KafkaAdminClient()
+def kafka_admin(bootstrap_servers):
+    _client = KafkaAdminClient(bootstrap_servers=bootstrap_servers)
     yield _client
     _client.close()
 
 
 @pytest.fixture
-def producer():
-    producer = Producer()
+def producer(bootstrap_servers):
+    producer = Producer(bootstrap_servers=bootstrap_servers)
     yield producer
     producer.close()
 
 
 @pytest.fixture
-def consumer(topic, kafka_admin):
-    consumer = Consumer(topic, group_id=topic)
+def consumer(bootstrap_servers, topic, kafka_admin):
+    consumer = Consumer(topic, bootstrap_servers=bootstrap_servers, group_id=topic)
     yield consumer
     consumer.close()
 

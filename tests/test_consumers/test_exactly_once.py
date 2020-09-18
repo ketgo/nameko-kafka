@@ -39,9 +39,10 @@ def offset_storage():
 
 
 @pytest.fixture
-def kafka_consumer(random_topic, offset_storage, kafka_admin):
+def kafka_consumer(bootstrap_servers, random_topic, offset_storage, kafka_admin):
     _consumer = ExactlyOnceConsumer(
         random_topic,
+        bootstrap_servers=bootstrap_servers,
         storage=offset_storage,
         group_id=random_topic,
         max_poll_records=2,
