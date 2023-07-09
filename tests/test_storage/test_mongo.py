@@ -9,7 +9,7 @@ from pymongo import MongoClient
 
 from nameko_kafka.storage.mongo import MongoStorage, DEFAULT_DB_NAME, DEFAULT_COLLECTION_NAME
 
-DEFAULT_MONGODB_HOST = "127.0.0.1:27017"
+DEFAULT_MONGODB_HOST = "mongodb://mongo:password@127.0.0.1:27017"
 DB_NAME = 'nameko_kafka_test'
 COLLECTION = 'offsets_test'
 

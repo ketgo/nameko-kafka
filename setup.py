@@ -20,6 +20,7 @@ extra_requires_utils = [
     'pytest~=5.0',
     'pytest-cov~=2.0',
     'pytest-mock~=3.0',
+    'pytest-eventlet~=1.0.0',
     'pylint~=2.0',
     'bandit~=1.6',
     'PyMySQL~=0.9',
@@ -45,9 +46,8 @@ if __name__ == '__main__':
         package_dir={'nameko_kafka': 'nameko_kafka'},
         python_requires='>=3.4',
         install_requires=[
-            'nameko',
-            'kafka-python',
-            'wrapt==1.11'  # Fixed version: needed by kafka-python
+            'nameko~=2.14',
+            'kafka-python~=2.0.2',
         ],
         extras_require={
             'dev': extra_requires_dev,

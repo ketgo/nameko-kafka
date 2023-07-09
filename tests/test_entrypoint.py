@@ -11,7 +11,7 @@ from nameko.testing.services import entrypoint_waiter
 from nameko_kafka import consume, KafkaConsumer, Semantic
 from nameko_kafka.constants import KAFKA_CONSUMER_CONFIG_KEY
 from nameko_kafka.storage import MongoStorage
-from .storage.test_mongo import create_client, DB_NAME, COLLECTION
+from .test_storage.test_mongo import create_client, DB_NAME, COLLECTION
 
 
 @pytest.fixture
