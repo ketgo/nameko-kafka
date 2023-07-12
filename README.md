@@ -162,15 +162,15 @@ Note: If the `db_name` and `collection` arguments are not specified, the default
 
 ##### SQL Storage
 
-Part of v0.2.1
+Part of v0.3.0
 
 ##### S3 Storage
 
-Part of v0.2.2
+Part of v0.4.0
 
 ##### Azure Block Storage
 
-Part of v0.2.3
+Part of v0.5.0
 
 ##### Create Custom Storage
 

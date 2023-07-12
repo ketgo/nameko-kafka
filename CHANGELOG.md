@@ -9,3 +9,8 @@
 - Fixed identifier of managed spawned thread in entrypoint 
 - Added support different commit strategies
 - Added MongoDB offset storage for exactly once delivery semantics
+
+# v0.2.1
+
+- Removed wrapt dependency
+- Fixed nameko and kafka-python version
